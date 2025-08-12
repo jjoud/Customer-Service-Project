@@ -1,0 +1,1395 @@
+{
+  "name": "contactus",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0d0c9407-a84e-480e-8dd3-27fcdf001404",
+              "leftValue": "={{ $json.body.contactMethod }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        1056
+      ],
+      "id": "3c699043-8a96-4d8a-bd45-b457539a232e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "## Tigger",
+        "height": 1004,
+        "width": 150
+      },
+      "id": "1932e39e-9071-43ac-a690-707ea0d72a25",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Email Agent",
+        "height": 492,
+        "width": 728,
+        "color": 3
+      },
+      "id": "71455e2d-f19a-400e-8474-ebd3e7f78392",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email\": \"recipient@example.com\",\n  \"subject\": \"Email Subject\",\n  \"content\": \"<p>...HTML email content here...</p>\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1328,
+        896
+      ],
+      "id": "4e1247f1-7500-4b69-88bd-e77c46bb546f",
+      "name": "Structured Output"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "id": "174ec392-6e34-4194-8b49-b191409d6c19",
+      "name": "Email interface",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        32,
+        720
+      ],
+      "typeVersion": 1.2,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2mr2nO4zr0bfsIWP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY",
+          "mode": "list",
+          "cachedResultName": "Extra instructions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        912,
+        896
+      ],
+      "id": "055c6f8b-b55b-4b2d-a5a8-717e8f1d7c08",
+      "name": "Extra Instructions",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7sQKx4CfY7DnEYZ5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7db644c5-137e-41e5-8269-a727e760fb53",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        32,
+        1056
+      ],
+      "id": "a920c5e9-c300-4bec-ba65-13ca6b5ed0c8",
+      "name": "Form Trigger",
+      "webhookId": "7db644c5-137e-41e5-8269-a727e760fb53"
+    },
+    {
+      "parameters": {
+        "content": "# Requirements \n\n### Google gmail API\n\n### Google sheet file \nhttps://docs.google.com/spreadsheets/d/1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY/edit?usp=sharing . \nFor extra instructions for Email Agent\n\n### https://jina.ai/ for Scrape gotech api\n\n### https://openrouter.ai/ Api for model AI sh\n\n## Supabase Project\n### Req. SQL \ncreate extension vector\nwith\n  schema extensions;\n\n\ncreate or replace function match_documents (\n  query_embedding vector(1536),\n  match_threshold float,\n  match_count int\n)\nreturns setof documents\nlanguage sql\nas $$\n  select *\n  from documents\n  where documents.embedding <=> query_embedding < 1 - match_threshold\n  order by documents.embedding <=> query_embedding asc\n  limit least(match_count, 200);\n$$;\n\n\n### Table Scheme \ncreate table public.documents (\n  id bigint generated always as identity not null,\n  content text null,\n  embedding extensions.vector null,\n  metadata jsonb null,\n  constraint documents_pkey primary key (id)\n) TABLESPACE pg_default;",
+        "height": 1072,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "beaa0878-c8cc-46bb-acf4-bda6234a1cda",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        784,
+        896
+      ],
+      "id": "181623ef-0395-475b-9c72-9c2f094ac22d",
+      "name": "model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "VInkNW3Qb7LoGz1W",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Email Subject: {{ $json.subject }}\nUser name: {{ $json.name }}\nUser email: {{ $json.email }}\nMessage: {{ $json.message }}\n\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Role: You are a Administrative c in GOTech responsible for reading incoming emails or form submissions and crafting professional replies. You write only in English with a formal, business tone.\nTask:\n1- Read and understand the incoming email or form.\n2-Perform a search on using 'comapny_knowledge_base' tool to gather relevant company context or details, and use this context in your reply as appropriate.\n3- Generate a professional email reply using the HTML template provided below (with dynamic placeholders for name, subject, and message).\n4- Always use a formal and professional tone.\n5- Integrate additional instructions from Google Sheets before sending the reply.\n7- You are allowed to edit the <p>{{CustomMessage}}</p> section with additional HTML styling if needed. Keep the main structure intact.\n8- Always return the final result as valid JSON in the using : Structured Output format tool\n- The \"email\" is from {{ $json.email }}\n- The \"content\" field must contain the full HTML email.\n- The email \"subject\" must be short, professional that summarizes the content clearly and comprehensively\n\nTarget Audience: General (clients, partners, employees).\n\nTone/Style: Professional, business, polite.\n\nConstraints:\n\t1\tUse the fixed HTML reply template below.\n\t2\tAlways include the company signature.\n\nIntegrations: Google Sheets (for additional instructions).\n\n\n\nHTML Email Template (used inside \"content\"):\n<p>Thank you for reaching out to us regarding <strong>{{Subject}}</strong>.  \nWe have received your message and appreciate you taking the time to contact us.</p>\n\n<p>{{CustomMessage}}</p>\n\n<p>If you have any further questions or require additional assistance, please do not hesitate to contact us.</p>\n\n<div class=\"signature\">\n  Best regards,<br>\n  {{AgentName}}<br>\n  Administrative Assistant<br>\n  GoTech.sa\n</div>\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        736
+      ],
+      "id": "1695d60a-d93e-4817-afe2-5a0c5ce3abb8",
+      "name": "Email Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.output.email }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.content }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "82f6bd4e-80ed-4f53-913d-a4e446b1058a",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1456,
+        736
+      ],
+      "webhookId": "a8bc0090-8b98-4a15-8449-194516ec6e90",
+      "executeOnce": true,
+      "typeVersion": 2.1,
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2mr2nO4zr0bfsIWP",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "other",
+              "description": "Anything the Assistance could not answer"
+            },
+            {
+              "category": "Company Assistance",
+              "description": "Handle all questions about the company.|Cover general queries from customers or partners.  Provide help with any information-seeking request."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        720
+      ],
+      "id": "1b115bf4-dbbf-423c-9026-931a34e4d470",
+      "name": "Only Relevant Messages"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3-0324:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        208,
+        896
+      ],
+      "id": "8f53b276-3d2c-49be-abe1-252de4251a4d",
+      "name": "Classification model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "VInkNW3Qb7LoGz1W",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let emailData;\ntry {\n  const relevantMessages = $('Only Relevant Messages').all();\n  emailData = relevantMessages.length > 0 ? relevantMessages[0].json : null;\n} catch (e) {\n  emailData = null;\n}\n\nlet formData = $input.first()?.json?.body || {};\n\n// fallback function to extract name & email from raw header string\nfunction parseFromHeader(headerStr) {\n  const match = headerStr.match(/From:\\s*(.*)\\s*<(.+?)>/i);\n  return {\n    name: match?.[1]?.trim() || \"Unknown\",\n    email: match?.[2]?.trim() || \"no-email@example.com\"\n  };\n}\n\n// Helper: get name/email from any possible structure\nfunction extractSender(data) {\n  // Case 1: structured from.value[0]\n  if (data?.from?.value?.[0]) {\n    return {\n      name: data.from.value[0].name || \"Unknown\",\n      email: data.from.value[0].address || \"no-email@example.com\"\n    };\n  }\n\n  // Case 2: header string\n  if (data?.headers?.from) {\n    return parseFromHeader(data.headers.from);\n  }\n\n  // Case 3: fallback\n  return {\n    name: \"Unknown\",\n    email: \"no-email@example.com\"\n  };\n}\n\nif (!emailData || Object.keys(emailData).length === 0) {\n  // Use Form data\n  return [{\n    json: {\n      name: formData.name || \"Unknown\",\n      email: formData.email || \"no-email@example.com\",\n      subject: formData.subject || \"No subject\",\n      message: formData.message || \"\"\n    }\n  }];\n} else {\n  const sender = extractSender(emailData);\n\n  // Debug log (will show in n8n execution logs)\n  console.log(`Extracted Email Sender: ${sender.name} <${sender.email}>`);\n\n  return [{\n    json: {\n      name: sender.name,\n      email: sender.email,\n      subject: emailData?.subject || \"No subject\",\n      message: emailData?.text || \"\"\n    }\n  }];\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        880
+      ],
+      "id": "b4bbe0f3-0058-4cde-9aa6-ffd9e2f577df",
+      "name": "Unify"
+    },
+    {
+      "parameters": {
+        "url": "https://r.jina.ai/https://gotech.sa",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        256,
+        96
+      ],
+      "id": "0e7435a9-fa6b-4e57-beb8-05f5fad5d521",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gqwvCCmaZMZDchwX",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        96
+      ],
+      "id": "e573ed14-d8d7-4a92-adba-fcf458704d46",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1-0528-qwen3-8b:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        496,
+        304
+      ],
+      "id": "1c0f7471-46da-428b-9871-00df56ba1f97",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "VInkNW3Qb7LoGz1W",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $json.content }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=title",
+                "value": "={{ $json.title }}"
+              },
+              {
+                "name": "url",
+                "value": "={{ $json.url }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "39588935-c5c8-4400-a585-4cfdb89fb843",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "26469541-2aa0-4bb5-93f7-ff872f150be2",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        320
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "84nNAvDvefSZ3pdv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "48d23f9c-f919-4c92-97d1-77390ec0969e",
+      "name": "Recursive Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1168,
+        96
+      ],
+      "id": "e2ebd10a-8ccf-4514-8f19-54b6e9d26fe7",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "MvG8hSYd48p1mxqp",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "fb4901f5-9198-4fcd-97a2-a74978910aa7",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        976,
+        1008
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "84nNAvDvefSZ3pdv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "comapny_knowledge_base",
+        "toolDescription": "It contain company Info. Use to answer clients. ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 2,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "64026f97-317f-4f52-bc60-0cf7c3cb3c11",
+      "name": "Comapny Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        896
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MvG8hSYd48p1mxqp",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\nconst parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;\n\nreturn [{\n  json: parsed\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        96
+      ],
+      "id": "8e48315e-cc9e-4aec-b74b-def9d1c1a087",
+      "name": "Parse"
+    },
+    {
+      "parameters": {
+        "content": "## Purpose:\nFetch information from a website, clean and format it into a knowledge document, and store it with embeddings in Supabase to use later as part of a knowledge base for RAG.",
+        "height": 560,
+        "width": 1776
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "20c3cd63-dfee-492d-b54e-26529de25457",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        1808
+      ],
+      "id": "1207e542-6368-44a7-98e8-40ae2bff8cbe",
+      "name": "When chat message received",
+      "webhookId": "024fb15e-9ab3-45f2-8095-1a33ad8d469d"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        2032
+      ],
+      "id": "188d4224-301b-4d9f-b5e2-6c6e36daafa8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "To show the chat bot icon and use it,\nyou should put this code in the header of clint website.\n// the workflow must be active \n// you can test it in html compiler\n\n<link href=\"https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css\" rel=\"stylesheet\" />\n<script type=\"module\">\n  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';\n\n  createChat({\n    webhookUrl: 'https://helaaay.app.n8n.cloud/webhook/024fb15e-9ab3-45f2-8095-1a33ad8d469d/chat',\n    initialMessages: [\n      \"Welcome to GoTech Assistant !\",\n      \" I'm Ready to Help You \"\n    ]\n  });\n</script>\n",
+        "height": 256,
+        "width": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        1744
+      ],
+      "typeVersion": 1,
+      "id": "e76d96ed-d155-4caf-a5c4-bb6c79d47723",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "comapny_knowledge_base",
+        "toolDescription": "It contain company Info. Use to answer clients. ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 2,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "6564ec34-c7a9-47c3-9048-3d53fe7146e4",
+      "name": "Comapny Knowledge Base1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        992,
+        2032
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MvG8hSYd48p1mxqp",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "182ebd29-e1c3-4373-9240-d9bd0c132f2b",
+      "name": "Embeddings OpenAI2",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        2192
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "84nNAvDvefSZ3pdv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        2032
+      ],
+      "id": "275e85c9-dbef-44d6-9189-cc1f0921fc2d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "84nNAvDvefSZ3pdv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Web chat model",
+        "height": 592,
+        "width": 704
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        1744
+      ],
+      "typeVersion": 1,
+      "id": "8be15d7e-0452-4f60-9cc5-98354276a9ec",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        1328
+      ],
+      "id": "101c82b9-87bb-4720-a6d9-d33b7845ed12",
+      "name": "WhatsApp Trigger",
+      "webhookId": "a6d64d65-d2cf-417e-932f-f9c5b03bda09",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "qa27JCv2ma1nJSaE",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "658207954050918",
+        "recipientPhoneNumber": "={{ $json.output.whatsapp }} ",
+        "textBody": "={{ $json.output.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        1264
+      ],
+      "id": "f1673491-f482-4bd0-bfac-ec51a6dc346e",
+      "name": "Send message",
+      "webhookId": "c164fcc9-a484-46be-b744-cbf5dbad9ad2",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "Z5O2opkJ1iNf6Npf",
+          "name": "WhatsApp account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY",
+          "mode": "list",
+          "cachedResultName": "Extra instructions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1StimSFQs8uV_wwy57zzntG4KxYNl5UD596quCfDf9dY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        880,
+        1440
+      ],
+      "id": "bb815bb0-2724-42e1-ba51-ed132dc0c1cd",
+      "name": "Extra Instructions1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7sQKx4CfY7DnEYZ5",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "de7c4e33-53e7-42db-a76c-ad092a2cf5bb",
+      "name": "Embeddings OpenAI3",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        960,
+        1552
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "84nNAvDvefSZ3pdv",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "comapny_knowledge_base",
+        "toolDescription": "It contain company Info. Use to answer clients. ",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 2,
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "c8b3a07a-879e-4a4c-87ef-65dfd15df756",
+      "name": "Comapny Knowledge Base2",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MvG8hSYd48p1mxqp",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WhatsApp Agent",
+        "height": 492,
+        "width": 728,
+        "color": 6
+      },
+      "id": "f1dac60b-66b1-4197-b2c3-69893768482e",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        1200
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"whatsapp\": \"966539394738\",\n  \"subject\": \"WhatsApp Subject\",\n  \"content\": \"Thank you for reaching out to us regarding \"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1296,
+        1424
+      ],
+      "id": "62b2f2d5-1121-439f-ac15-3f89ebae5084",
+      "name": "Structured Output1"
+    },
+    {
+      "parameters": {
+        "content": " This link takes you to the Facebook Developers Apps Management page.\n\nhttps://developers.facebook.com/apps",
+        "height": 128
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        1360
+      ],
+      "id": "4818db52-5a78-49ea-b5df-31e8adc7176b",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User name: {{ $json.name }}\nUser number: {{ $json.phone }}\nMessage: {{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Context Awareness \nCurrent date and time: {{ $now }}\n\nRole Assignment:\nYou are a professional WhatsApp Support Assistant at GOTech, trained in efficient and polite business communication.\n\nYour Objective:  \nRespond to incoming WhatsApp messages from clients, partners, or internal staff by crafting helpful, professional, and fully composed English replies — without placeholders or vague variables.\n\nInstructions:\n\n1. Understand the Message: \n   Carefully read the incoming WhatsApp message and infer the sender’s intent and tone.\n\n2. Knowledge Retrieval: \n   Search the internal 'company_knowledge_base' to find relevant information, policies, FAQs, or guidance to support an accurate response.\n\n3. Reply Formatting (Required)  \n   Ensure that every response follows a structured, well-formatted layout that includes:\n   - A polite greeting with the sender's name if available  \n   - A thank-you or acknowledgment line  \n   - A brief description of GOTech and its relevant services  \n   - A clear, informative reply tailored to the sender’s inquiry  \n   - A standard closing line: “Would you prefer a call back or to continue here on WhatsApp?”\n\n   Keep the formatting consistent, organized in clean paragraphs or bullet points (if needed), and ensure the message reads fluently as if written by a professional human agent.\n\n   - Never leave any placeholder— fill in everything.\n\n4. Mandatory Closing Line: \n   End every message with:  \n   “Would you prefer a call back or to continue here on WhatsApp?”\n\n5. Structured Output Format (JSON):\n   Return the response as a valid JSON object with these fields:\n   ```json\n   {\n     \"whatsapp\": \"[RecipientPhoneNumber]\",\n     \"subject\": \"[Short summary of the inquiry]\",\n     \"content\": \"[The full plain-text message that will be sent]\"\n   }\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        1264
+      ],
+      "id": "9ab56895-0213-4d4a-b501-36dd1020f244",
+      "name": "WhatsApp Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "let formData = $json.body || {};\n\n// 1. إزالة الرموز + و - و () ومسافات\nlet rawPhone = formData.phone || \"\";\nlet cleaned = rawPhone.replace(/[^0-9]/g, '');\n\n// 2. تنسيق الرقم ليبدأ بـ 966 دائمًا بدون 0\nif (cleaned.startsWith(\"9660\")) {\n  cleaned = \"966\" + cleaned.slice(4);\n} else if (cleaned.startsWith(\"0\")) {\n  cleaned = \"966\" + cleaned.slice(1);\n} else if (!cleaned.startsWith(\"966\")) {\n  cleaned = \"966\" + cleaned;\n}\n\n// 3. استبدال phone بالقيمة الجديدة\nformData.phone = cleaned;\n\nreturn [{\n  json: formData\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        1152
+      ],
+      "id": "7f4d2337-0c71-49da-a33a-c30bd453639e",
+      "name": "Number Format"
+    },
+    {
+      "parameters": {
+        "jsCode": "let input = $json || {};\nlet isWhatsApp = input?.messaging_product === \"whatsapp\";\nlet name = \"Unknown\";\nlet phone = \"\";\nlet message = \"\";\nlet subject = \"\";\nlet channel = \"Email\";\n\n// إذا كانت من WhatsApp\nif (isWhatsApp) {\n  const contact = input.contacts?.[0] || {};\n  const msg = input.messages?.[0] || {};\n\n  name = contact.profile?.name || \"Unknown\";\n  phone = contact.wa_id || \"\";\n  message = msg.text?.body || \"\";\n  channel = \"WhatsApp\";\n\n// إذا كانت من نموذج الويب\n} else {\n  const preferredContact = (input.contactMethod || \"\").toLowerCase();\n  const isFormWhatsApp = preferredContact === \"whatsapp\";\n\n  name = input.name || \"Unknown\";\n  phone = input.phone || \"\";\n  message = input.message || \"\";\n  subject = input.subject || \"No subject\";\n  channel = isFormWhatsApp ? \"WhatsApp\" : \"Email\";\n}\n\n// تنظيف الرقم\nlet cleaned = phone.replace(/[^0-9]/g, '');\nif (cleaned.startsWith(\"9660\")) {\n  cleaned = \"966\" + cleaned.slice(4);\n} else if (cleaned.startsWith(\"0\")) {\n  cleaned = \"966\" + cleaned.slice(1);\n} else if (!cleaned.startsWith(\"966\")) {\n  cleaned = \"966\" + cleaned;\n}\n\nreturn [{\n  json: {\n    name,\n    phone: cleaned,\n    subject,\n    message,\n    channel\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        1264
+      ],
+      "id": "d08c1835-e5cc-41ab-9ec5-ee910c25e906",
+      "name": "Unfiy"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-4o-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        752,
+        1440
+      ],
+      "id": "51e11f33-16ca-48a9-b5dc-6a25f1cebbba",
+      "name": "model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "VInkNW3Qb7LoGz1W",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a virtual customer service agent for GoTech Solutions.\n\nYour Tasks:\n\nAnswer customer questions only using data retrieved from the company's knowledge base stored in Supabase.\n\nIf the answer is not found in the Supabase data, politely apologize and direct the customer to human support.\n\nResponse Rules:\n\nAlways query Supabase results first.\n\nIf the information is found, answer professionally and clearly.\n\nIf the information is not available, respond with:\n\nI apologize, but that information is beyond my scope as a virtual agent. Please contact our customer service team at +(966) 531966864 or email contact@gotech.sa.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        928,
+        1808
+      ],
+      "id": "5966dd9b-05ff-462a-b227-1896d0c6ec53",
+      "name": "ChatBot Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "You are a Document Formatter AI.\nYour task: Convert the following raw scraped data into a clean, RAG-ready knowledge document specifically about the company.\n\nInput:\n{{ $json.data }}\n\nOutput:\n- Always return valid JSON only.\n- Schema:\n{\n  \"title\": \"<company name>\",\n  \"url\": \"<company website>\",\n  \"content\": \"<comprehensive summary of the company including services, industries, mission, and contact information>\"\n}\n\nInstructions:\n1. Extract the official company name for the \"title\".\n2. Use the value from \"URL Source\" for the \"url\".\n3. Read all content and create a clean narrative about the company:\n   - Describe what the company does, its services, industries served, and mission.\n   - Include relevant contact details (phone, email) if present.\n   - Remove menus, repeated items, markdown syntax (#, *, ![image]), and boilerplate like \"Markdown Content:\".\n4. Merge everything into one coherent content block suitable for embeddings.\n5. Focus on the company's identity and value proposition, not raw web layout.\n6. Never return an empty array; if data is missing, return placeholders with empty strings.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        496,
+        96
+      ],
+      "id": "69772b28-5d1a-42d0-a930-a40c8f81ce87",
+      "name": "Document formatter"
+    }
+  ],
+  "pinData": {
+    "Send Email": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ],
+    "Form Trigger": [
+      {
+        "json": {
+          "headers": {
+            "host": "joud1.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0",
+            "content-length": "125",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "ar,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "87.109.59.164",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "SA",
+            "cf-ray": "9684a709322e847a-MXP",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "null",
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Microsoft Edge\";v=\"138\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "87.109.59.164, 172.69.9.14",
+            "x-forwarded-host": "joud1.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-59-5786bcf55-dd5pj",
+            "x-is-trusted": "yes",
+            "x-real-ip": "87.109.59.164"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "name": "Joud Alharbi",
+            "contactMethod": "whatsapp",
+            "email": "j.aok511@gmail.com",
+            "phone": "0539394738",
+            "message": "hi iiam bnan"
+          },
+          "webhookUrl": "https://joud1.app.n8n.cloud/webhook/7db644c5-137e-41e5-8269-a727e760fb53",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Unify",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Number Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email interface": {
+      "main": [
+        [
+          {
+            "node": "Only Relevant Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extra Instructions": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Relevant Messages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Unify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classification model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Only Relevant Messages",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unify": {
+      "main": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Document formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Document formatter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comapny Knowledge Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Comapny Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "ChatBot Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "ChatBot Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comapny Knowledge Base1": {
+      "ai_tool": [
+        [
+          {
+            "node": "ChatBot Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Comapny Knowledge Base1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ChatBot Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Unfiy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extra Instructions1": {
+      "ai_tool": [
+        [
+          {
+            "node": "WhatsApp Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI3": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Comapny Knowledge Base2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comapny Knowledge Base2": {
+      "ai_tool": [
+        [
+          {
+            "node": "WhatsApp Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "WhatsApp Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Number Format": {
+      "main": [
+        [
+          {
+            "node": "Unfiy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unfiy": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "WhatsApp Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatBot Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Document formatter": {
+      "main": [
+        [
+          {
+            "node": "Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "84576d24-e674-4b36-9125-233c12a5537f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "77238d492832aea4e4c2e2a9d9350a5c3f05bf3ce4f1bd8fccfab1f00647f975"
+  },
+  "id": "QLRmp20gG82k1mVp",
+  "tags": []
+}
